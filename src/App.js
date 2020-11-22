@@ -29,35 +29,67 @@ class App extends Component {
   }
 
   getVehicles() {
+    axios.get('https://joes-autos.herokuapp.com/api/vehicles')
+    .then(res=>this.setState({vehiclesToDisplay:res.data}))
+    .then(()=>toast.success("got vehicles"))
+    .catch(e=>console.log(e))
     // axios (GET)
     // setState with response -> vehiclesToDisplay
   }
 
   getPotentialBuyers() {
+    axios.get('https://joes-autos.herokuapp.com/api/buyers')
+    .then(res=>{
+      toast.success("done got buyers")
+      this.setState({buyersToDisplay:res.data})
+    })
+    .catch(e=>console.log(e))
     // axios (GET)
     // setState with response -> buyersToDisplay
   }
 
   sellCar(id) {
+    axios.delete(`https://joes-autos.herokuapp.com/api/vehicles/${id}`)
+    .then(res=>{
+      toast.success("car deleted")
+      this.setState({vehiclesToDisplay:res.data.vehicles})
+    })
+    .catch(e=>toast.error(e))
     // axios (DELETE)
     // setState with response -> vehiclesToDisplay
   }
 
   filterByMake() {
+
     let make = this.selectedMake.value
+    axios.get("https://joes-autos.herokuapp.com/api/vehicles")
+    .then(res=>{
+      toast.success(`filtering... for make ${make}`)
+      this.setState({vehiclesToDisplay:res.data.filter(car=>car.make==make)
+      })})
+    .catch(e=>toast.error(e))
+  
 
-    // axios (GET)
-    // setState with response -> vehiclesToDisplay
-  }
-
+}
+  
   filterByColor() {
     let color = this.selectedColor.value
-
+    axios.get("https://joes-autos.herokuapp.com/api/vehicles")
+    .then(res=>{
+      toast.success(`filtering... for color ${color}`)
+      console.log(res.data)
+      this.setState({vehiclesToDisplay:res.data.filter(car=>car.color===color)})
+    })
+    .catch(e=>toast.error(e))
     // axios (GET)
     // setState with response -> vehiclesToDisplay
   }
 
   updatePrice(priceChange, id) {
+    axios.put(`https://joes-autos.herokuapp.com/api/vehicles/${id}/${priceChange}`)
+    .then(res=>this.setState({vehiclesToDisplay:res.data.vehicles}))
+    .then(()=>toast.success("Price changed"))
+    .catch(e=>console.log(e))
     // axios (PUT)
     // setState with response -> vehiclesToDisplay
   }
@@ -70,7 +102,11 @@ class App extends Component {
       year: this.year.value,
       price: this.price.value,
     }
-
+      axios.post("https://joes-autos.herokuapp.com/api/vehicles",newCar)
+      .then(res=>{
+        toast.success("car added")
+        this.setState({vehiclesToDisplay:res.data.vehicles})
+      })
     // axios (POST)
     // setState with response -> vehiclesToDisplay
   }
@@ -81,25 +117,45 @@ class App extends Component {
       phone: this.phone.value,
       address: this.address.value,
     }
-
+    axios.post('https://joes-autos.herokuapp.com/api/buyers',newBuyer)
+    .then(res=>{
+      toast.success("Buyer added")
+      this.setState({buyersToDisplay:res.data.buyers})
+    })
+    .catch(e=>toast.error(e))
     //axios (POST)
     // setState with response -> buyersToDisplay
   }
 
   deleteBuyer(id) {
+    axios.delete(`https://joes-autos.herokuapp.com/api/buyers/${id}`)
+    .then(res=>{
+      toast.success('buyer deleted')
+      this.setState({buyersToDisplay:res.data.buyers})
+    })
     // axios (DELETE)
     //setState with response -> buyersToDisplay
   }
 
   nameSearch() {
     let searchLetters = this.searchLetters.value
+    axios.get(`https://joes-autos.herokuapp.com/api/buyers`)
+    .then(res=>{
+      this.setState({buyersToDisplay:res.data.filter(buyer=>buyer.name.toLowerCase().includes(searchLetters.toLowerCase()))})
+    })
+    .catch(e=>toast.error(e))
     // axios (GET)
     // setState with response -> buyersToDisplay
   }
 
   byYear() {
     let year = this.searchYear.value
-
+    axios.get("https://joes-autos.herokuapp.com/api/vehicles")
+    .then(res=>{
+      
+      this.setState({vehiclesToDisplay:res.data.filter(car=>car.year===Number(year))})
+    })
+    .catch(e=>toast.error(e))
     // axios (GET)
     // setState with response -> vehiclesToDisplay
   }
@@ -232,12 +288,12 @@ class App extends Component {
             <option value="" disabled>
               Filter by color
             </option>
-            <option value="red">Red</option>
-            <option value="green">Green</option>
+            <option value="Red">Red</option>
+            <option value="Green">Green</option>
             <option value="Purple">Purple</option>
-            <option value="indigo">Indigo</option>
-            <option value="violet">Violet</option>
-            <option value="teal">Teal</option>
+            <option value="Indigo">Indigo</option>
+            <option value="Violet">Violet</option>
+            <option value="Teal">Teal</option>
           </select>
 
           <input
